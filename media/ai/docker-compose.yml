@@ -1,0 +1,28 @@
+services:
+  open-webui:
+    container_name: open-webui
+    image: ghcr.io/open-webui/open-webui
+    ports:
+      - "3001:8080"
+    volumes:
+      - /srv/docker/appdata/open-webui:/app/backend/data
+    networks:
+      - portainer_default
+    restart: unless-stopped
+  n8n:
+    container_name: n8n
+    restart: always
+    image: docker.n8n.io/n8nio/n8n
+    user: "1000:1000"
+    ports:
+      - 5678:5678
+    volumes:
+      - /srv/docker/appdata/n8n_data:/home/node/.n8n
+    networks:
+      - portainer_default
+    environment:
+      - N8N_SECURE_COOKIE=false
+      - N8N_HOST=${N8N_HOST}
+networks:
+  portainer_default:
+    external: true

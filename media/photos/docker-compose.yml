@@ -1,0 +1,60 @@
+services:
+  immich:
+    container_name: immich
+    restart: always
+    image: ghcr.io/imagegenius/immich:2.6.1
+    ports:
+      - 2283:8080
+    volumes:
+      - /srv/docker/appdata/immich/config:/config
+      - /srv/docker/appdata/immich/libraries:/libraries
+      - /mnt/nas/photos:/photos
+    environment:
+      - UID=1000
+      - GID=1000
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Shanghai
+      - DB_HOSTNAME=${POSTGRES_HOST}
+      - DB_PORT=${POSTGRES_PORT}
+      - DB_DATABASE_NAME=${IMMICH_DB_DATABASE_NAME}
+      - DB_USERNAME=${IMMICH_DB_USERNAME}
+      - DB_PASSWORD=${IMMICH_DB_PASSWORD}
+      - REDIS_HOSTNAME=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - MACHINE_LEARNING_HOST=0.0.0.0
+      - MACHINE_LEARNING_PORT=3003
+      - MACHINE_LEARNING_WORKERS=1
+      - MACHINE_LEARNING_WORKER_TIMEOUT=120
+    networks:
+      - portainer_default
+    devices:
+      - /dev/dri:/dev/dri
+  photoprism:
+    image: photoprism/photoprism:latest
+    container_name: photoprism
+    restart: unless-stopped
+    ports:
+      - 2342:2342
+    environment:
+      PHOTOPRISM_ADMIN_PASSWORD: ${PHOTOPRISM_ADMIN_PASSWORD}
+      PHOTOPRISM_DATABASE_DRIVER: "mysql"
+      PHOTOPRISM_DATABASE_SERVER: ${MARIADB_HOST}:${MARIADB_PORT}
+      PHOTOPRISM_DATABASE_NAME: ${PHOTOPRISM_DB_DATABASE}
+      PHOTOPRISM_DATABASE_USER: ${PHOTOPRISM_DB_USER}
+      PHOTOPRISM_DATABASE_PASSWORD: ${PHOTOPRISM_DB_PASSWORD}
+      PHOTOPRISM_ORIGINALS_LIMIT: 5000
+      PHOTOPRISM_HTTP_COMPRESSION: "gzip"
+      PHOTOPRISM_LOG_LEVEL: "info"
+      PHOTOPRISM_READONLY: "false"
+      PHOTOPRISM_DISABLE_TLS: "true"
+      PHOTOPRISM_SITE_URL: ${PHOTOPRISM_SITE_URL}
+    volumes:
+      - /srv/docker/appdata/photoprism/storage:/photoprism/storage
+      - /mnt/nas/media/photos/100EOSR6:/photoprism/originals/100EOSR6
+    networks:
+      - portainer_default
+networks:
+  portainer_default:
+    external: true

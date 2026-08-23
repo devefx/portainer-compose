@@ -5,7 +5,7 @@ services:
     image: grafana/grafana:latest
     ports:
       - 3000:3000
-    user: "0"
+    user: "1000:1000"
     environment:
       - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
@@ -40,7 +40,6 @@ services:
       - 9090:9090
     networks:
       - portainer_default
-    user: "0:3001"
     volumes:
       - /srv/docker/appdata/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
 networks:

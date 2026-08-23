@@ -1,0 +1,56 @@
+services:
+  vidlens-server:
+    image: devefx/vidlens-server:1.0.1
+    container_name: vidlens-server
+    volumes:
+      - /srv/docker/appdata/vidlens-server/config.json:/app/config.json
+    restart: unless-stopped
+    ports:
+      - 8278:3000
+    networks:
+      - portainer_default
+  telegram-assistant:
+    image: devefx/telegram-assistant:1.0.0
+    container_name: telegram-assistant
+    environment:
+      - API_ID=${API_ID}
+      - API_HASH=${API_HASH}
+      - PHONE=${PHONE}
+      - BOT_TOKEN=${BOT_TOKEN:-}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=3306
+      - DB_USER=tgassistant
+      - DB_PASSWORD=${DB_PASSWORD:-tgassistant}
+      - DB_NAME=tgassistant
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=6379
+      - MEILISEARCH_URL=${MEILISEARCH_URL}
+      - MEILISEARCH_MASTER_KEY=${MEILISEARCH_MASTER_KEY:-}
+      - NTFY_SERVER=${NTFY_SERVER:-https://ntfy.sh}
+      - NTFY_TOPIC=${NTFY_TOPIC:-}
+      - WECHAT_ENABLED=${WECHAT_ENABLED:-true}
+      - PUSHOVER_USER=${PUSHOVER_USER:-}
+      - PUSHOVER_TOKEN=${PUSHOVER_TOKEN:-}
+      - ANIME_CONFIGS_FILE=${ANIME_CONFIGS_FILE:-}
+      - ENABLED_MODULES=${ENABLED_MODULES:-*}
+      - PROXY_TYPE=${PROXY_TYPE:-}
+      - PROXY_HOST=${PROXY_HOST:-}
+      - PROXY_PORT=${PROXY_PORT:-}
+      - WEB_PORT=8000
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - DOWNLOAD_ROOT=/app/downloads
+      - TZ=Asia/Shanghai
+    volumes:
+      - /srv/docker/appdata/telegram-assistant/tgassistant_user.session:/app/tgassistant_user.session
+      - /srv/docker/appdata/telegram-assistant/tgassistant_bot.session:/app/tgassistant_bot.session
+      - /srv/docker/appdata/telegram-assistant/logs:/app/logs
+      - /srv/docker/appdata/telegram-assistant/anime_configs.json:/app/anime_configs.json
+      - /mnt/nas/media/porn/Telegram:/app/downloads
+    restart: unless-stopped
+    ports:
+      - 5960:8000
+    networks:
+      - portainer_default
+networks:
+  portainer_default:
+    external: true

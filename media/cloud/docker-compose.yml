@@ -1,0 +1,41 @@
+services:
+  nextcloud:
+    container_name: nextcloud
+    restart: always
+    image: nextcloud:latest
+    ports:
+      - 8001:80
+    environment:
+      - POSTGRES_HOST=${NEXTCLOUD_POSTGRES_HOST}
+      - POSTGRES_DB=${NEXTCLOUD_POSTGRES_DB}
+      - POSTGRES_USER=${NEXTCLOUD_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${NEXTCLOUD_POSTGRES_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - PHP_MEMORY_LIMIT=2048M
+      - PHP_UPLOAD_LIMIT=20480M
+      - APACHE_BODY_LIMIT=0
+    networks:
+      - portainer_default
+    volumes:
+      - /srv/docker/appdata/nextcloud:/var/www/html
+      - /mnt/nas/media_nextcloud/:/var/www/html/data
+  openlist:
+    container_name: openlist
+    image: 'openlistteam/openlist:latest'
+    restart: always
+    volumes:
+      - /srv/docker/appdata/openlist:/opt/openlist/data
+    user: '1000:1000'
+    environment:
+      - UMASK=022
+      - TZ=Asia/Shanghai
+    ports:
+      - '15244:5244'
+      - '15245:5245'
+    networks:
+      - portainer_default
+networks:
+  portainer_default:
+    external: true

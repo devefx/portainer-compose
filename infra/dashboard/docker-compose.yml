@@ -13,8 +13,8 @@ services:
     networks:
       - portainer_default
     environment:
-      - PUID=0
-      - PGID=0
+      - PUID=1000
+      - PGID=1000
       - UMASK=022
   flatnas:
     image: qdnas/flatnas:latest
@@ -31,7 +31,6 @@ services:
       - /srv/docker/appdata/flatnas/music:/app/server/music
       - /srv/docker/appdata/flatnas/PC:/app/server/PC
       - /srv/docker/appdata/flatnas/APP:/app/server/APP
-      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - portainer_default
 networks:

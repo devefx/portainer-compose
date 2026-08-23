@@ -1,0 +1,21 @@
+services:
+  emulatorjs:
+    image: linuxserver/emulatorjs:amd64-1.9.2
+    platform: linux/amd64
+    container_name: emulatorjs
+    restart: unless-stopped
+    ports:
+      - 6684:3000
+      - 6080:80
+    networks:
+      - portainer_default
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Shanghai
+    volumes:
+      - /srv/docker/appdata/emulatorjs/config:/config
+      - /srv/docker/appdata/emulatorjs/data:/data
+networks:
+  portainer_default:
+    external: true

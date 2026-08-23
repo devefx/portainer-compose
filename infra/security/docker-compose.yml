@@ -6,7 +6,7 @@ services:
     ports:
       - 11001:80
     environment:
-      - SIGNUPS_ALLOWED=true
+      - SIGNUPS_ALLOWED=false
       - WEBSOCKET_ENABLED=true
     networks:
       - portainer_default

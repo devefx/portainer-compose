@@ -1,0 +1,52 @@
+services:
+  navidrome:
+    container_name: navidrome
+    restart: always
+    image: deluan/navidrome:latest
+    ports:
+      - 4533:4533
+    volumes:
+      - /srv/docker/appdata/navidrome:/data
+      - /mnt/nas/media/music:/music
+    environment:
+      - UID=1000
+      - GID=1000
+      - ND_LOGLEVEL=info
+    networks:
+      - portainer_default
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    container_name: audiobookshelf
+    restart: always
+    ports:
+      - 13378:80
+    networks:
+      - portainer_default
+    volumes:
+      - /srv/docker/appdata/audiobookshelf/config:/config
+      - /srv/docker/appdata/audiobookshelf/metadata:/metadata
+      - /mnt/nas/media/audiobooks:/audiobooks
+      - /mnt/nas/media/podcasts:/podcasts
+    environment:
+      - TZ=Asia/Shanghai
+  calibre-web:
+    image: lscr.io/linuxserver/calibre-web:latest
+    container_name: calibre-web
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - DOCKER_MODS=linuxserver/mods:universal-calibre
+      - OAUTHLIB_RELAX_TOKEN_SCOPE=1
+    volumes:
+      - /srv/docker/appdata/calibre-web/config:/config
+      - /srv/docker/appdata/calibre-web/database:/database
+      - /mnt/nas/media/books:/books
+    ports:
+      - 8083:8083
+    networks:
+      - portainer_default
+    restart: unless-stopped
+networks:
+  portainer_default:
+    external: true

@@ -1,0 +1,49 @@
+services:
+  emby:
+    image: emby/embyserver:latest
+    container_name: embyserver
+    environment:
+      - UID=1000
+      - GID=1000
+      - TZ=Asia/Shanghai
+    devices:
+      - /dev/dri:/dev/dri
+    group_add:
+      - "44"
+      - "105"
+    volumes:
+      - /srv/docker/appdata/embyserver:/config
+      - /mnt/nas/media:/mnt/nas/media
+      - /mnt/disk/wd_20t:/mnt/wd_20t
+    ports:
+      - 8096:8096
+      - 8920:8920
+    networks:
+      - portainer_default
+    restart: on-failure
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      - UID=1000
+      - GID=1000
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Shanghai
+      - LANG=en_US.UTF-8
+      - LC_ALL=en_US.UTF-8
+    volumes:
+      - /srv/docker/appdata/jellyfin:/config
+      - /srv/docker/appdata/jellyfin/fonts:/usr/share/fonts/truetype/dejavu
+      - /mnt/nas/media:/mnt/nas/media
+      - /mnt/disk/wd_20t:/mnt/wd_20t
+    ports:
+      - 8097:8096
+    networks:
+      - portainer_default
+    devices:
+      - /dev/dri:/dev/dri
+    restart: unless-stopped
+networks:
+  portainer_default:
+    external: true

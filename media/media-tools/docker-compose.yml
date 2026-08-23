@@ -1,0 +1,55 @@
+services:
+  tinymediamanager:
+    image: tinymediamanager/tinymediamanager:latest
+    container_name: tinymediamanager
+    environment:
+      - USER_ID=1000
+      - GROUP_ID=1000
+      - TZ=Asia/Shanghai
+      - DISPLAY_WIDTH=1920
+      - DISPLAY_HEIGHT=1080
+      - ALLOW_DIRECT_VNC=true
+      - LC_ALL=en_US.UTF-8
+      - LANG=en_US.UTF-8
+      - PASSWORD=${TINYMEDIAMANAGER_PASSWORD}
+    volumes:
+      - /srv/docker/appdata/tinymediamanager:/data
+      - /mnt/disk/wd_20t:/media/wd_20t
+      - /mnt/nas/media/movies:/media/movies
+      - /mnt/nas/media/tv_shows:/media/tv_shows
+      - /mnt/nas/downloads:/media/downloads
+    ports:
+      - 5900:5900
+      - 4000:4000
+    networks:
+      - portainer_default
+    restart: unless-stopped
+  metatube:
+    image: ghcr.io/metatube-community/metatube-server:latest
+    container_name: metatube
+    ports:
+      - 7071:8080
+    networks:
+      - portainer_default
+    restart: unless-stopped
+    volumes:
+      - /srv/docker/appdata/metatube/config:/config
+    command: >
+      -dsn /config/metatube.db
+  atvloadly:
+    container_name: atvloadly
+    hostname: atvloadly
+    image: bitxeno/atvloadly:latest
+    privileged: true
+    volumes:
+      - /srv/docker/appdata/atvloadly:/data
+      - /var/run/dbus:/var/run/dbus
+      - /var/run/avahi-daemon:/var/run/avahi-daemon
+    ports:
+      - 5533:80/tcp
+    networks:
+      - portainer_default
+    restart: unless-stopped
+networks:
+  portainer_default:
+    external: true

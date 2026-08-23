@@ -1,0 +1,12 @@
+services:
+  it-tools:
+    image: corentinth/it-tools:latest
+    container_name: it-tools
+    restart: always
+    ports:
+      - 9058:80
+    networks:
+      - portainer_default
+networks:
+  portainer_default:
+    external: true

@@ -13,6 +13,19 @@ infra/
 ├── notes/          # joplin, trilium
 ├── notifications/  # ntfy
 └── security/       # vaultwarden
+
+media/
+├── photos/        # immich, photoprism
+├── cloud/         # nextcloud, openlist
+├── media/         # emby, jellyfin
+├── library/       # navidrome, audiobookshelf, calibre-web
+├── media-tools/   # tinymediamanager, metatube, atvloadly
+├── downloads/     # fluxdown-server, xunlei
+├── ai/            # open-webui, n8n
+├── games/         # emulatorjs, couple-flying-chess
+├── smart-home/    # home-assistant (reserved)
+├── tools/         # it-tools
+└── custom/        # vidlens-server, telegram-assistant
 ```
 
 ## Usage

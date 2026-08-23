@@ -1,0 +1,39 @@
+services:
+  fluxdown-server:
+    image: ghcr.io/zerx-lab/fluxdown-server:0.4.3
+    container_name: fluxdown-server
+    environment:
+      - FLUXDOWN_HOST=0.0.0.0
+      - FLUXDOWN_PORT=17800
+      - FLUXDOWN_DATA=/app/data
+      - FLUXDOWN_MCP_ENABLED=true
+    volumes:
+      - /srv/docker/appdata/fluxdown:/app/data
+      - /mnt/nas/downloads:/root/Downloads
+    restart: unless-stopped
+    ports:
+      - "17800:17800"
+    networks:
+      - portainer_default
+  xunlei:
+    image: cnk3x/xunlei:latest
+    container_name: xunlei
+    volumes:
+      - /srv/docker/appdata/xunlei:/xunlei/data
+      - /mnt/nas/downloads:/xunlei/downloads
+    #environment:
+    #  XL_DASHBOARD_USERNAME: ${XL_DASHBOARD_USERNAME}
+    #  XL_DASHBOARD_PASSWORD: ${XL_DASHBOARD_PASSWORD}
+    restart: always
+    privileged: true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+    ports:
+      - "2345:2345"
+    networks:
+      - portainer_default
+networks:
+  portainer_default:
+    external: true
