@@ -1,0 +1,15 @@
+services:
+  ntfy:
+    container_name: ntfy
+    image: binwiederhier/ntfy
+    restart: always
+    ports:
+      - 4656:80
+    networks:
+      - portainer_default
+    volumes:
+      - /srv/docker/appdata/ntfy:/etc/ntfy
+    command: serve
+networks:
+  portainer_default:
+    external: true

@@ -1,0 +1,48 @@
+services:
+  grafana:
+    container_name: grafana
+    restart: always
+    image: grafana/grafana:latest
+    ports:
+      - 3000:3000
+    user: "0"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+    volumes:
+      - /srv/docker/appdata/grafana:/var/lib/grafana
+    networks:
+      - portainer_default
+  influxdb2:
+    container_name: influxdb2
+    restart: always
+    image: influxdb:2
+    ports:
+      - 8086:8086
+    networks:
+      - portainer_default
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=${DOCKER_INFLUXDB_INIT_USERNAME}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${DOCKER_INFLUXDB_INIT_PASSWORD}
+      - DOCKER_INFLUXDB_INIT_ORG=${DOCKER_INFLUXDB_INIT_ORG}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${DOCKER_INFLUXDB_INIT_BUCKET}
+      - DOCKER_INFLUXDB_INIT_RETENTION=7d
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${DOCKER_INFLUXDB_INIT_ADMIN_TOKEN}
+    volumes:
+      - /srv/docker/appdata/influxdb/config:/etc/influxdb2
+      - /srv/docker/appdata/influxdb/data:/var/lib/influxdb2
+  prometheus:
+    container_name: prometheus
+    restart: always
+    image: prom/prometheus:latest
+    ports:
+      - 9090:9090
+    networks:
+      - portainer_default
+    user: "0:3001"
+    volumes:
+      - /srv/docker/appdata/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+networks:
+  portainer_default:
+    external: true

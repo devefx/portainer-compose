@@ -1,0 +1,36 @@
+services:
+  joplin:
+    container_name: joplin
+    restart: always
+    image: joplin/server:latest
+    ports:
+      - 22300:22300
+    environment:
+      - APP_PORT=22300
+      - APP_BASE_URL=${JOPLIN_BASE_URL}
+      - DB_CLIENT=pg
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - MAX_TIME_DRIFT=0
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - portainer_default
+  trilium:
+    container_name: trilium
+    image: triliumnext/trilium:latest
+    restart: unless-stopped
+    ports:
+      - 36946:8080
+    volumes:
+      - /srv/docker/appdata/trilium:/home/node/trilium-data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - portainer_default
+networks:
+  portainer_default:
+    external: true

@@ -1,0 +1,17 @@
+services:
+  vaultwarden:
+    container_name: vaultwarden
+    restart: always
+    image: vaultwarden/server:latest
+    ports:
+      - 11001:80
+    environment:
+      - SIGNUPS_ALLOWED=true
+      - WEBSOCKET_ENABLED=true
+    networks:
+      - portainer_default
+    volumes:
+      - /srv/docker/appdata/vaultwarden:/data
+networks:
+  portainer_default:
+    external: true

@@ -1,0 +1,44 @@
+services:
+  termix:
+    image: ghcr.io/lukegus/termix:latest
+    container_name: termix
+    restart: unless-stopped
+    ports:
+      - "6225:6225"
+    volumes:
+      - /srv/docker/appdata/termix:/app/data
+    environment:
+      PORT: "6225"
+    depends_on:
+      - guacd
+    networks:
+      - portainer_default
+  guacd:
+    image: guacamole/guacd:1.6.0
+    container_name: guacd
+    restart: unless-stopped
+    ports:
+      - "4822:4822"
+    networks:
+      - portainer_default
+  dbx:
+    container_name: dbx
+    image: t8y2/dbx:latest
+    restart: unless-stopped
+    ports:
+      - "4224:4224"
+    volumes:
+      - /srv/docker/appdata/dbx:/app/data
+    networks:
+      - portainer_default
+  redisinsight:
+    container_name: redisinsight
+    image: redis/redisinsight:latest
+    restart: unless-stopped
+    ports:
+      - 5540:5540
+    networks:
+      - portainer_default
+networks:
+  portainer_default:
+    external: true

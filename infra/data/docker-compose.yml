@@ -1,0 +1,55 @@
+services:
+  mariadb:
+    container_name: mariadb
+    restart: always
+    image: mariadb:latest
+    ports:
+      - 3306:3306
+    networks:
+      - portainer_default
+    volumes:
+      - /srv/docker/appdata/mariadb:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+  postgres:
+    container_name: postgres
+    restart: always
+    image: tensorchord/pgvecto-rs:pg16-v0.2.0
+    ports:
+      - 5432:5432
+    volumes:
+      - /srv/docker/appdata/postgres:/var/lib/postgresql/data
+    networks:
+      - portainer_default
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DATABASE}
+  redis:
+    container_name: redis
+    restart: always
+    image: redis:latest
+    networks:
+      - portainer_default
+    volumes:
+      - /srv/docker/appdata/redis:/data
+    ports:
+      - 6379:6379
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    container_name: meilisearch
+    restart: always
+    environment:
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
+    ports:
+      - 7700:7700
+    networks:
+      - portainer_default
+    volumes:
+      - /srv/docker/appdata/meilisearch/data:/meili_data
+networks:
+  portainer_default:
+    external: true

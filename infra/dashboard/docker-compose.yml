@@ -1,0 +1,39 @@
+services:
+  sun-panel:
+    container_name: sun-panel
+    image: "hslr/sun-panel:1.3.0"
+    restart: always
+    ports:
+      - 3002:3002
+    volumes:
+      - /srv/docker/appdata/sun-panel/conf:/app/conf
+      - /srv/docker/appdata/sun-panel/uploads:/app/uploads
+      - /srv/docker/appdata/sun-panel/database:/app/database
+      - /srv/docker/appdata/sun-panel/custom:/app/web/custom
+    networks:
+      - portainer_default
+    environment:
+      - PUID=0
+      - PGID=0
+      - UMASK=022
+  flatnas:
+    image: qdnas/flatnas:latest
+    container_name: flatnas
+    restart: unless-stopped
+    ports:
+      - 23000:3000
+    environment:
+      - HOST=0.0.0.0
+      - PORT=3000
+    volumes:
+      - /srv/docker/appdata/flatnas/data:/app/server/data
+      - /srv/docker/appdata/flatnas/doc:/app/server/doc
+      - /srv/docker/appdata/flatnas/music:/app/server/music
+      - /srv/docker/appdata/flatnas/PC:/app/server/PC
+      - /srv/docker/appdata/flatnas/APP:/app/server/APP
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - portainer_default
+networks:
+  portainer_default:
+    external: true
