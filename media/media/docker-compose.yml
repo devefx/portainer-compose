@@ -1,16 +1,21 @@
 services:
   emby:
-    image: emby/embyserver:latest
+    #image: emby/embyserver:latest
+    #image: lscr.io/linuxserver/emby:latest
+    image: amilys/embyserver:latest
     container_name: embyserver
     environment:
-      - UID=1000
-      - GID=1000
+      #- UID=1000
+      #- GID=1000
+      - PUID=1000
+      - PGID=1000
       - TZ=Asia/Shanghai
     devices:
       - /dev/dri:/dev/dri
     group_add:
       - "44"
-      - "105"
+      - "992"
+      - "133"
     volumes:
       - /srv/docker/appdata/embyserver:/config
       - /mnt/nas/media:/mnt/nas/media

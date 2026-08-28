@@ -23,6 +23,20 @@ services:
     environment:
       - N8N_SECURE_COOKIE=false
       - N8N_HOST=${N8N_HOST}
+  deepseek-harness:
+    container_name: deepseek-harness
+    image: smanx/deepseek-harness:devtools-latest
+    restart: unless-stopped
+    volumes:
+      - /srv/docker/appdata/deepseek-harness:/root/.dsh
+      - /mnt/nas/workspace:/root/projects
+    environment:
+      - PROXY_USERNAME=${DSH_USERNAME}
+      - PROXY_PASSWORD=${DSH_PASSWORD}
+    ports:
+      - 3080:3080
+    networks:
+      - portainer_default
 networks:
   portainer_default:
     external: true

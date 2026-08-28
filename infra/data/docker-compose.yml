@@ -44,6 +44,7 @@ services:
     restart: always
     environment:
       - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
+      - MEILI_UPGRADE_DB=${MEILI_UPGRADE_DB:-false}
     ports:
       - 7700:7700
     networks:
