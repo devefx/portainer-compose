@@ -16,18 +16,17 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
   postgres:
     container_name: postgres
+    image: postgres:16
     restart: always
-    image: tensorchord/pgvecto-rs:pg16-v0.2.0
-    ports:
-      - 5432:5432
     volumes:
       - /srv/docker/appdata/postgres:/var/lib/postgresql/data
-    networks:
-      - portainer_default
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DATABASE}
+    ports:
+      - 5432:5432
+    networks:
+      - portainer_default
   redis:
     container_name: redis
     restart: always

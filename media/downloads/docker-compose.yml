@@ -21,9 +21,9 @@ services:
     volumes:
       - /srv/docker/appdata/xunlei:/xunlei/data
       - /mnt/nas/downloads:/xunlei/downloads
-    #environment:
-    #  XL_DASHBOARD_USERNAME: ${XL_DASHBOARD_USERNAME}
-    #  XL_DASHBOARD_PASSWORD: ${XL_DASHBOARD_PASSWORD}
+    environment:
+      XL_DASHBOARD_USERNAME: ${XL_DASHBOARD_USERNAME:-admin}
+      XL_DASHBOARD_PASSWORD: ${XL_DASHBOARD_PASSWORD:-admin}
     restart: always
     privileged: true
     logging:

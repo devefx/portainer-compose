@@ -1,10 +1,10 @@
 services:
   nextcloud:
     container_name: nextcloud
-    restart: always
+    restart: unless-stopped
     image: nextcloud:latest
     ports:
-      - 8001:80
+      - 9417:80
     environment:
       - POSTGRES_HOST=${NEXTCLOUD_POSTGRES_HOST}
       - POSTGRES_DB=${NEXTCLOUD_POSTGRES_DB}
