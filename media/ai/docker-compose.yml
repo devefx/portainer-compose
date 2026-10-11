@@ -23,6 +23,20 @@ services:
     environment:
       - N8N_SECURE_COOKIE=false
       - N8N_HOST=${N8N_HOST}
+  magpie:
+    container_name: magpie
+    restart: unless-stopped
+    image: ghcr.io/yetone/magpie:latest
+    ports:
+      - 3425:3425
+      - 3430:3430
+    volumes:
+      - /srv/docker/appdata/magpie:/config
+    networks:
+      - portainer_default
+    environment:
+      - MAGPIE_WEB_KEY=${MAGPIE_WEB_KEY}
+    command: web --addr 0.0.0.0:3430 --no-open
 networks:
   portainer_default:
     external: true
