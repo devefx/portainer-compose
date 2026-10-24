@@ -3,6 +3,8 @@ services:
     image: corentinth/it-tools:latest
     container_name: it-tools
     restart: always
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     ports:
       - 9058:80
     networks:

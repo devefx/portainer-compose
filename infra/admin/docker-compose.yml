@@ -3,6 +3,8 @@ services:
     image: ghcr.io/lukegus/termix:latest
     container_name: termix
     restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     ports:
       - "6225:6225"
     volumes:
@@ -25,6 +27,8 @@ services:
     container_name: dbx
     image: t8y2/dbx:latest
     restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     ports:
       - "4224:4224"
     volumes:
@@ -35,6 +39,8 @@ services:
     container_name: redisinsight
     image: redis/redisinsight:latest
     restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     ports:
       - 5540:5540
     networks:

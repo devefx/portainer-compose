@@ -2,6 +2,8 @@ services:
   tinymediamanager:
     image: tinymediamanager/tinymediamanager:latest
     container_name: tinymediamanager
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     environment:
       - USER_ID=1000
       - GROUP_ID=1000
@@ -27,6 +29,8 @@ services:
   metatube:
     image: ghcr.io/metatube-community/metatube-server:latest
     container_name: metatube
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     ports:
       - 7071:8080
     networks:
@@ -41,6 +45,8 @@ services:
     hostname: atvloadly
     image: bitxeno/atvloadly:latest
     privileged: true
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     volumes:
       - /srv/docker/appdata/atvloadly:/data
       - /var/run/dbus:/var/run/dbus

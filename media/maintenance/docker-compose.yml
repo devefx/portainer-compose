@@ -1,0 +1,38 @@
+services:
+  watchtower:
+    # containrrr/watchtower was archived on 2025-12; this is the maintained fork.
+    # Labels and environment variables are drop-in compatible.
+    image: nickfedor/watchtower:1.23.2
+    container_name: watchtower
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Shanghai
+      # Opt-in mode: only containers labelled com.centurylinklabs.watchtower.enable=true are updated.
+      - WATCHTOWER_LABEL_ENABLE=true
+      # No scope filter on purpose: one instance per host. If you ever run a second
+      # instance on this host, set WATCHTOWER_SCOPE here AND add the matching
+      # com.centurylinklabs.watchtower.scope label to every managed container.
+      # Daily at 04:47, offset from the infra instance and away from the top of the hour.
+      - WATCHTOWER_SCHEDULE=${WATCHTOWER_SCHEDULE:-0 47 4 * * *}
+      - WATCHTOWER_CLEANUP=true
+      # Global image freshness buffer: only update to an image that is already 24h old,
+      # so a bad upstream push does not land on this host the same night. Per-container
+      # overrides live in each service's labels (label wins over this default).
+      - WATCHTOWER_COOLDOWN_DELAY=${WATCHTOWER_COOLDOWN_DELAY:-24h}
+      # Rolling restart MUST stay off here: immich declares depends_on
+      # (immich-postgres16, immich-valkey), and Watchtower validates the whole
+      # filtered set at startup, then exits(1) with "rolling restart dependency"
+      # when any managed container has a dependency. See internal/actions/validate.go.
+      - WATCHTOWER_ROLLING_RESTART=false
+      - WATCHTOWER_TIMEOUT=60s
+      - WATCHTOWER_LOG_LEVEL=${WATCHTOWER_LOG_LEVEL:-info}
+      # Leave empty to disable notifications. Local ntfy needs an explicit scheme:
+      # ntfy://192.168.1.10:4656/watchtower-media?scheme=http&title=Watchtower+media
+      - WATCHTOWER_NOTIFICATION_URL=${WATCHTOWER_NOTIFICATION_URL:-}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - portainer_default
+networks:
+  portainer_default:
+    external: true

@@ -19,6 +19,8 @@ services:
   jellyfin:
     image: lscr.io/linuxserver/jellyfin:latest
     container_name: jellyfin
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     environment:
       - PUID=1000
       - PGID=1000

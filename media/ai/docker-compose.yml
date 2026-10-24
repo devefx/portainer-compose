@@ -27,6 +27,8 @@ services:
     container_name: magpie
     restart: unless-stopped
     image: ghcr.io/yetone/magpie:latest
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     ports:
       - 3425:3425
       - 3430:3430

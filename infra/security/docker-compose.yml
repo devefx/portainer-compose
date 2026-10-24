@@ -3,6 +3,8 @@ services:
     container_name: vaultwarden
     restart: always
     image: vaultwarden/server:latest
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     ports:
       - 11001:80
     environment:

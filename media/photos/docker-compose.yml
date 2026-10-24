@@ -3,6 +3,11 @@ services:
     container_name: immich
     restart: unless-stopped
     image: ghcr.io/imagegenius/immich:latest
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      # Note: immich runs DB migrations on startup and immich-postgres16 is pinned to
+      # vectorchord0.4.3 / pgvectors0.2.0. A jump to a newer Immich release may need a
+      # newer extension image. Watch the first update's log; see .env.example.
     environment:
       - PUID=1000
       - PGID=1000

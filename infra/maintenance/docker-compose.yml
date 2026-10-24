@@ -1,0 +1,39 @@
+services:
+  watchtower:
+    # containrrr/watchtower was archived on 2025-12; this is the maintained fork.
+    # Labels and environment variables are drop-in compatible.
+    image: nickfedor/watchtower:1.23.2
+    container_name: watchtower
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Shanghai
+      # Opt-in mode: only containers labelled com.centurylinklabs.watchtower.enable=true are updated.
+      - WATCHTOWER_LABEL_ENABLE=true
+      # No scope filter on purpose: one instance per host. If you ever run a second
+      # instance on this host, set WATCHTOWER_SCOPE here AND add the matching
+      # com.centurylinklabs.watchtower.scope label to every managed container.
+      # Daily at 04:17, avoiding the top of the hour (shared GHCR registry buckets are empty near :00).
+      - WATCHTOWER_SCHEDULE=${WATCHTOWER_SCHEDULE:-0 17 4 * * *}
+      - WATCHTOWER_CLEANUP=true
+      # Global image freshness buffer: only update to an image that is already 24h old,
+      # so a bad upstream push does not land on this host the same night. Per-container
+      # overrides live in each service's labels (label wins over this default).
+      - WATCHTOWER_COOLDOWN_DELAY=${WATCHTOWER_COOLDOWN_DELAY:-24h}
+      # Do NOT enable WATCHTOWER_ROLLING_RESTART here. Watchtower validates the whole
+      # filtered set at startup and exits(1) if any managed container has a dependency
+      # (com.docker.compose.depends_on, links, network mode, volumes_from). vaultwarden
+      # has none today, but one future `depends_on` on a labelled service would crash
+      # the instance. See internal/actions/validate.go.
+      - WATCHTOWER_ROLLING_RESTART=false
+      - WATCHTOWER_TIMEOUT=60s
+      - WATCHTOWER_LOG_LEVEL=${WATCHTOWER_LOG_LEVEL:-info}
+      # Leave empty to disable notifications. Local ntfy needs an explicit scheme:
+      # ntfy://192.168.1.10:4656/watchtower-infra?scheme=http&title=Watchtower+infra
+      - WATCHTOWER_NOTIFICATION_URL=${WATCHTOWER_NOTIFICATION_URL:-}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - portainer_default
+networks:
+  portainer_default:
+    external: true
