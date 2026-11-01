@@ -26,6 +26,7 @@ media/
 ├── games/         # emulatorjs, couple-flying-chess
 ├── maintenance/   # watchtower (auto image updates)
 ├── smart-home/    # home-assistant (reserved)
+├── web/           # nginx (static files)
 ├── tools/         # it-tools
 └── custom/        # vidlens-server, telegram-assistant
 ```
@@ -64,7 +65,7 @@ Currently opted in:
 | Host | Services |
 | --- | --- |
 | `infra/` | `admin/termix`, `admin/dbx`, `admin/redisinsight`, `notes/joplin`, `security/vaultwarden` |
-| `media/` | `ai/magpie`, `photos/immich`, `library/navidrome`, `library/audiobookshelf`, `library/calibre-web`, `media/jellyfin`, `media-tools/tinymediamanager`, `media-tools/metatube`, `media-tools/atvloadly`, `tools/it-tools` |
+| `media/` | `ai/magpie`, `photos/immich`, `library/navidrome`, `library/audiobookshelf`, `library/calibre-web`, `media/jellyfin`, `media-tools/tinymediamanager`, `media-tools/metatube`, `media-tools/atvloadly`, `web/nginx`, `tools/it-tools` |
 
 Per-container `com.centurylinklabs.watchtower.cooldown-delay` labels are reserved for
 exceptions and currently none are set, since the global value already covers the common

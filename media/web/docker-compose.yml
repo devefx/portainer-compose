@@ -1,0 +1,17 @@
+services:
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nginx
+    restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    volumes:
+      - /srv/docker/appdata/nginx/conf.d:/etc/nginx/conf.d:ro
+      - /mnt/nas/archive:/usr/share/nginx/html/archive:ro
+    ports:
+      - 9080:80
+    networks:
+      - portainer_default
+networks:
+  portainer_default:
+    external: true
