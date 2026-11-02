@@ -12,6 +12,25 @@ services:
       - 9080:80
     networks:
       - portainer_default
+  miniserve:
+    image: svenstaro/miniserve:latest
+    container_name: miniserve
+    restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    environment:
+      - MINISERVE_PORT=8080
+      - MINISERVE_INTERFACE=0.0.0.0
+      - MINISERVE_ENABLE_TAR=${MINISERVE_ENABLE_TAR:-false}
+      - MINISERVE_ENABLE_TAR_GZ=${MINISERVE_ENABLE_TAR_GZ:-false}
+      - TZ=Asia/Shanghai
+    volumes:
+      - ${MINISERVE_ROOT:-/mnt/nas/archive}:/data:ro
+    ports:
+      - ${MINISERVE_HTTP_PORT:-9081}:8080
+    command: /data
+    networks:
+      - portainer_default
 networks:
   portainer_default:
     external: true
