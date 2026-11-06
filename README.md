@@ -17,7 +17,7 @@ infra/
 
 media/
 ├── photos/        # immich, photoprism
-├── cloud/         # nextcloud, openlist
+├── cloud/         # nextcloud, openlist, syncthing
 ├── media/         # emby, jellyfin
 ├── library/       # navidrome, audiobookshelf, calibre-web
 ├── media-tools/   # tinymediamanager, metatube, atvloadly
@@ -90,8 +90,9 @@ Rules of thumb when adding the label:
 - The image tag must be floating (`latest`, `1`, `16`, ...). A pinned tag such as
   `sun-panel:1.3.0` never changes, so the label does nothing.
 - Do not label stateful or irreversible services: `infra/data/*`, `media/cloud/nextcloud`,
-  `media/photos` DB, `media/photos/photoprism`, `infra/notes/trilium`, `media/ai/open-webui`,
-  `media/ai/n8n`, `media/downloads/xunlei`, `media/downloads/amule`, `media/cloud/openlist`.
+  `media/cloud/syncthing`, `media/photos` DB, `media/photos/photoprism`, `infra/notes/trilium`,
+  `media/ai/open-webui`, `media/ai/n8n`, `media/downloads/xunlei`, `media/downloads/amule`,
+  `media/cloud/openlist`.
   They migrate data or hold sessions on startup and have no rollback path.
 - `WATCHTOWER_ROLLING_RESTART` stays `false` in both instances. Watchtower validates the
   whole filtered set at startup and exits non-zero if *any* managed container has a

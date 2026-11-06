@@ -36,6 +36,25 @@ services:
       - '15245:5245'
     networks:
       - portainer_default
+  syncthing:
+    container_name: syncthing
+    image: syncthing/syncthing:latest
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Shanghai
+      - STGUIADDRESS=0.0.0.0:8384
+    volumes:
+      - /srv/docker/appdata/syncthing:/var/syncthing
+      - ${SYNCTHING_SHARE_DIR:-/mnt/nas/sync}:/data
+    ports:
+      - "${SYNCTHING_GUI_PORT:-8384}:8384"
+      - "${SYNCTHING_SYNC_PORT:-22000}:22000/tcp"
+      - "${SYNCTHING_SYNC_PORT:-22000}:22000/udp"
+      - "${SYNCTHING_DISCOVERY_PORT:-21027}:21027/udp"
+    networks:
+      - portainer_default
 networks:
   portainer_default:
     external: true
