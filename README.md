@@ -6,7 +6,7 @@ Templates for managing Docker stacks with Portainer. Each directory is one indep
 
 ```text
 infra/
-├── admin/          # termix, guacd, dbx, redisinsight
+├── admin/          # termix, dbx, redisinsight
 ├── dashboard/      # sun-panel, flatnas
 ├── data/           # mariadb, postgres, redis, meilisearch
 ├── maintenance/    # watchtower (auto image updates)
@@ -81,7 +81,7 @@ too fresh it is reported as `Skipped` with an `eligible_at` timestamp instead of
 The label is an opt-in marker, not a guarantee: it only takes effect while the service
 keeps a floating tag. Several services are still pinned and are deliberately **not**
 labelled, because their tag never moves:
-`admin/guacd:1.6.0`, `dashboard/sun-panel:1.3.0`, `downloads/fluxdown-server:0.4.3`,
+`dashboard/sun-panel:1.3.0`, `downloads/fluxdown-server:0.4.3`,
 `custom/vidlens-server:1.0.1`, `custom/telegram-assistant:1.0.0`,
 `games/emulatorjs:amd64-1.9.2`.
 

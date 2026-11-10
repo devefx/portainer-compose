@@ -1,6 +1,6 @@
 services:
   termix:
-    image: ghcr.io/lukegus/termix:latest
+    image: ghcr.io/termix-ssh/termix:latest
     container_name: termix
     restart: unless-stopped
     labels:
@@ -11,16 +11,8 @@ services:
       - /srv/docker/appdata/termix:/app/data
     environment:
       PORT: "6225"
-    depends_on:
-      - guacd
-    networks:
-      - portainer_default
-  guacd:
-    image: guacamole/guacd:1.6.0
-    container_name: guacd
-    restart: unless-stopped
-    ports:
-      - "4822:4822"
+      # RDP/VNC/Telnet run in Termix's built-in engine; no guacd container needed.
+      REMOTE_DESKTOP_ENGINE: "builtin"
     networks:
       - portainer_default
   dbx:
