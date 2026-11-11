@@ -11,8 +11,27 @@ services:
       - /srv/docker/appdata/termix:/app/data
     environment:
       PORT: "6225"
-      # RDP/VNC/Telnet run in Termix's built-in engine; no guacd container needed.
-      REMOTE_DESKTOP_ENGINE: "builtin"
+      # Send RDP/VNC/Telnet to the guacd container below.
+      REMOTE_DESKTOP_ENGINE: "guacd"
+      GUACD_HOST: "guacd"
+      # guacd reaches Termix here for jump hosts and VNC without a username.
+      GUACD_TUNNEL_HOST: "termix"
+      # Path as guacd sees it; must match the volume mount below.
+      GUACD_RECORDING_PATH: "/termix-data/session_recordings/guacamole"
+    depends_on:
+      - guacd
+    networks:
+      - portainer_default
+  guacd:
+    image: guacamole/guacd:1.6.0
+    container_name: guacd
+    restart: unless-stopped
+    # No ports: only termix talks to it over portainer_default.
+    volumes:
+      # Recordings are written where Termix reads them.
+      - /srv/docker/appdata/termix/session_recordings/guacamole:/termix-data/session_recordings/guacamole
+      # Same host folder as Termix's RDP_DRIVE_PATH, mounted at guacd's default.
+      - /srv/docker/appdata/termix/rdp-drive:/drive
     networks:
       - portainer_default
   dbx:
