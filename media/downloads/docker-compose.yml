@@ -5,10 +5,10 @@ services:
     environment:
       - FLUXDOWN_HOST=0.0.0.0
       - FLUXDOWN_PORT=17800
-      - FLUXDOWN_DATA=/app/data
+      - FLUXDOWN_DATA_DIR=/data
       - FLUXDOWN_MCP_ENABLED=true
     volumes:
-      - /srv/docker/appdata/fluxdown:/app/data
+      - /srv/docker/appdata/fluxdown:/data
       - /mnt/nas/downloads:/root/Downloads
     restart: unless-stopped
     ports:
