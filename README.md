@@ -21,7 +21,7 @@ media/
 ├── media/         # emby, jellyfin
 ├── library/       # navidrome, audiobookshelf, calibre-web
 ├── media-tools/   # tinymediamanager, metatube, atvloadly
-├── downloads/     # fluxdown-server, xunlei, amule (ED2K)
+├── downloads/     # fluxdown-server, xunlei
 ├── ai/            # open-webui, n8n
 ├── games/         # emulatorjs, couple-flying-chess
 ├── maintenance/   # watchtower (auto image updates)
@@ -65,7 +65,7 @@ Currently opted in:
 | Host | Services |
 | --- | --- |
 | `infra/` | `admin/termix`, `admin/dbx`, `admin/redisinsight`, `notes/joplin`, `security/vaultwarden` |
-| `media/` | `ai/magpie`, `photos/immich`, `library/navidrome`, `library/audiobookshelf`, `library/calibre-web`, `media/jellyfin`, `media-tools/tinymediamanager`, `media-tools/metatube`, `media-tools/atvloadly`, `web/nginx`, `web/miniserve`, `tools/it-tools` |
+| `media/` | `ai/magpie`, `photos/immich`, `library/navidrome`, `library/audiobookshelf`, `library/calibre-web`, `media/jellyfin`, `media-tools/tinymediamanager`, `media-tools/metatube`, `media-tools/atvloadly`, `downloads/fluxdown-server`, `web/nginx`, `web/miniserve`, `tools/it-tools` |
 
 Per-container `com.centurylinklabs.watchtower.cooldown-delay` labels are reserved for
 exceptions and currently none are set, since the global value already covers the common
@@ -81,9 +81,8 @@ too fresh it is reported as `Skipped` with an `eligible_at` timestamp instead of
 The label is an opt-in marker, not a guarantee: it only takes effect while the service
 keeps a floating tag. Several services are still pinned and are deliberately **not**
 labelled, because their tag never moves:
-`admin/guacd:1.6.0`, `dashboard/sun-panel:1.3.0`, `downloads/fluxdown-server:0.4.3`,
-`custom/vidlens-server:1.0.1`, `custom/telegram-assistant:1.0.0`,
-`games/emulatorjs:amd64-1.9.2`.
+`admin/guacd:1.6.0`, `dashboard/sun-panel:1.3.0`, `custom/vidlens-server:1.0.1`,
+`custom/telegram-assistant:1.0.0`, `games/emulatorjs:amd64-1.9.2`.
 
 Rules of thumb when adding the label:
 
@@ -91,8 +90,7 @@ Rules of thumb when adding the label:
   `sun-panel:1.3.0` never changes, so the label does nothing.
 - Do not label stateful or irreversible services: `infra/data/*`, `media/cloud/nextcloud`,
   `media/cloud/syncthing`, `media/photos` DB, `media/photos/photoprism`, `infra/notes/trilium`,
-  `media/ai/open-webui`, `media/ai/n8n`, `media/downloads/xunlei`, `media/downloads/amule`,
-  `media/cloud/openlist`.
+  `media/ai/open-webui`, `media/ai/n8n`, `media/downloads/xunlei`, `media/cloud/openlist`.
   They migrate data or hold sessions on startup and have no rollback path.
 - `WATCHTOWER_ROLLING_RESTART` stays `false` in both instances. Watchtower validates the
   whole filtered set at startup and exits non-zero if *any* managed container has a

@@ -1,7 +1,9 @@
 services:
   fluxdown-server:
-    image: ghcr.io/zerx-lab/fluxdown-server:0.4.3
+    image: ghcr.io/zerx-lab/fluxdown-server:latest
     container_name: fluxdown-server
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     environment:
       - FLUXDOWN_HOST=0.0.0.0
       - FLUXDOWN_PORT=17800
@@ -13,6 +15,9 @@ services:
     restart: unless-stopped
     ports:
       - "17800:17800"
+      - "4662:4662" # eD2K TCP; set ed2k_listen_port=4662 in FluxDown, it defaults to 0 (random)
+      - "4665:4665/udp" # reserved: FluxDown binds no fixed eD2K UDP port
+      - "4672:4672/udp" # reserved: Kad uses an ephemeral outbound socket
     networks:
       - portainer_default
   xunlei:
@@ -32,30 +37,6 @@ services:
         max-size: "1m"
     ports:
       - "2345:2345"
-    networks:
-      - portainer_default
-  amule:
-    image: ngosang/amule:latest
-    container_name: amule
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Asia/Shanghai
-      - WEBUI_PWD=${AMULE_WEBUI_PWD}
-      - GUI_PWD=${AMULE_GUI_PWD:-}
-      - FIX_PERMISSIONS=${AMULE_FIX_PERMISSIONS:-true}
-      - MOD_AUTO_RESTART_ENABLED=true
-      - MOD_AUTO_RESTART_CRON=0 6 * * *
-      - MOD_AUTO_SHARE_ENABLED=${AMULE_AUTO_SHARE_ENABLED:-false}
-    volumes:
-      - /srv/docker/appdata/amule:/home/amule/.aMule
-      - /mnt/nas/downloads:/downloads
-    ports:
-      - "4711:4711" # Web UI + REST API (amuleapi, plain HTTP)
-      - "4662:4662" # ED2K client-to-client TCP, needs to be reachable for High ID
-      - "4665:4665/udp" # ED2K server UDP, global searches
-      - "4672:4672/udp" # Extended eMule protocol + Kademlia
-    restart: unless-stopped
     networks:
       - portainer_default
 networks:
