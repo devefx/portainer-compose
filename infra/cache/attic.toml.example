@@ -1,0 +1,106 @@
+# Template for the atticd server configuration.
+#
+# Nothing in this repository reads this file. Copy it to the host path that the
+# compose file mounts at /etc/attic/server.toml, then edit that copy:
+#   mkdir -p /srv/docker/appdata/attic
+#   cp attic.toml.example /srv/docker/appdata/attic/attic.toml
+# The copy on the host is the one you keep tuning afterwards, and the container has to
+# be recreated for an edit to take effect (bind mounts follow the host file inode).
+#
+# Secrets stay out of it: database.url comes from ATTIC_SERVER_DATABASE_URL and the JWT
+# signing key from ATTIC_SERVER_TOKEN_RS256_SECRET_BASE64, both from .env.
+#
+# This file is found without a "-f" flag: docker-compose.yml sets
+# XDG_CONFIG_HOME=/etc and atticd/atticadm default to
+# "$XDG_CONFIG_HOME/attic/server.toml", i.e. /etc/attic/server.toml - the path the
+# stack mounts. That is also why one-off modes work as-is:
+#   docker exec attic atticd --mode check-config
+#   docker exec attic atticd --mode garbage-collector-once
+#
+# atticd rejects unknown keys, so only set options listed here.
+# Reference: https://github.com/zhaofengli/attic/blob/main/server/src/config-template.toml
+
+# Socket address to bind inside the container.
+#
+# IPv4 any: Docker publishes the port by connecting to the container IPv4 address, while
+# "[::]" (the atticd default) only accepts those when the host has bindv6only=0. Switch
+# back to "[::]:8080" if you move this container to host networking and serve IPv6.
+listen = "0.0.0.0:8080"
+
+# Allowed Host headers. Empty means accept any, which is fine while only the LAN
+# or a trusted reverse proxy can reach this server. Set it once HTTPS is in front.
+allowed-hosts = []
+
+# The canonical API endpoint advertised to clients in cache-config responses.
+# Unset, it is synthesized from the client Host header - fine for direct access on
+# http://<infra-host>:8080, wrong behind a proxy. Keep the trailing slash:
+#   api-endpoint = "https://cache.example.com/"
+#api-endpoint = "https://cache.example.com/"
+
+# Only needed when NAR downloads are served from a different host than the API
+# (for example a CDN in front of the storage bucket).
+#substituter-endpoint = "https://cdn.example.com/"
+
+# Whether `attic cache destroy` soft-deletes instead of removing the record.
+#soft-delete-caches = false
+
+# Whether an uploader must re-upload a NAR it claims to already have.
+#require-proof-of-possession = true
+
+# Database
+#
+# url is intentionally absent; docker-compose.yml supplies it via
+# ATTIC_SERVER_DATABASE_URL (postgres from the data stack).
+[database]
+#heartbeat = false
+
+# Storage
+[storage]
+# "local" or "s3".
+type = "local"
+path = "/var/lib/attic/storage"
+
+# S3 or any S3-compatible endpoint (MinIO, R2, B2). If credentials are omitted the
+# AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY environment variables are used.
+#[storage]
+#type = "s3"
+#region = "us-east-1"
+#bucket = "attic"
+#endpoint = "http://minio:9000"
+#[storage.credentials]
+#access_key_id = "..."
+#secret_access_key = "..."
+
+# Chunking - the source of Attic's deduplication.
+#
+# Changing any value here makes new NARs use different cutpoints, so the dedup
+# ratio drops for a while; existing objects are unaffected.
+[chunking]
+# Smallest NAR that gets chunked. 0 disables chunking, 1 chunks everything.
+nar-size-threshold = 65536
+min-size = 16384
+avg-size = 65536
+max-size = 262144
+
+# Compression applied to stored chunks. "none", "brotli", "zstd" or "xz".
+[compression]
+type = "zstd"
+#level = 8
+
+# Garbage collection
+[garbage-collection]
+interval = "12 hours"
+
+# Retention for caches that do not set their own with
+# "attic cache configure <name> --retention-period". Zero (the default) keeps
+# everything forever, which is how a cache silently fills the disk.
+#default-retention-period = "6 months"
+
+# JWT
+#
+# The signing key comes from the environment; see docker-compose.yml. Only set
+# these claims if you need tokens bound to a specific issuer/audience - changing
+# them invalidates every token already issued.
+#[jwt]
+#token-bound-issuer = "attic"
+#token-bound-audiences = ["attic"]

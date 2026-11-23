@@ -7,6 +7,7 @@ Templates for managing Docker stacks with Portainer. Each directory is one indep
 ```text
 infra/
 ├── admin/          # termix, guacd, dbx, redisinsight
+├── cache/          # attic (Nix binary cache)
 ├── dashboard/      # sun-panel, flatnas
 ├── data/           # mariadb, postgres, redis, meilisearch
 ├── maintenance/    # watchtower (auto image updates)
@@ -33,7 +34,9 @@ media/
 
 ## Usage
 
-1. Copy `.env.example` to `.env` in the stack directory.
+1. Copy `.env.example` to `.env` in the stack directory. The attic stack also ships
+   `attic.toml.example`; copy it to the host path the compose file mounts
+   (`/srv/docker/appdata/attic/attic.toml`) and edit that copy.
 2. Fill in real values. Never commit `.env`.
 3. Deploy locally with `docker compose up -d` from the stack directory.
 4. In Portainer, create one stack per directory and set the compose path to `infra/<stack>/docker-compose.yml`.
@@ -84,10 +87,16 @@ labelled, because their tag never moves:
 `admin/guacd:1.6.0`, `dashboard/sun-panel:1.3.0`, `custom/vidlens-server:1.0.1`,
 `custom/telegram-assistant:1.0.0`, `games/emulatorjs:amd64-1.9.2`.
 
+`infra/cache/attic` is the opposite case: upstream publishes no version tags on ghcr, its
+TOML schema changes incompatibly between builds (`atticd` aborts on unknown keys) and its
+database migrations are forward-only. It is pinned to an image digest and is deliberately
+**not** labelled - upgrading means reading the upstream diff, then replacing the digest.
+
 Rules of thumb when adding the label:
 
-- The image tag must be floating (`latest`, `1`, `16`, ...). A pinned tag such as
-  `sun-panel:1.3.0` never changes, so the label does nothing.
+- The image reference must be a floating tag without a digest pin (`latest`, `1`, `16`, ...).
+  A pinned tag such as `sun-panel:1.3.0` never changes, and a digest pin keeps `latest` from
+  moving either, so the label would do nothing in both cases.
 - Do not label stateful or irreversible services: `infra/data/*`, `media/cloud/nextcloud`,
   `media/cloud/syncthing`, `media/photos` DB, `media/photos/photoprism`, `infra/notes/trilium`,
   `media/ai/open-webui`, `media/ai/n8n`, `media/downloads/xunlei`, `media/cloud/openlist`.

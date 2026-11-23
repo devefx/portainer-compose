@@ -1,0 +1,58 @@
+# Attic - Nix binary cache (atticd), monolithic: API server + periodic GC,
+# migrations on startup.
+#
+# Setup on the infra host:
+#   mkdir -p /srv/docker/appdata/attic /mnt/nix-cache/objects
+#   cp attic.toml.example /srv/docker/appdata/attic/attic.toml   # then edit
+#   docker exec -it postgres psql -U app -c 'CREATE DATABASE attic;'
+#   openssl genrsa -traditional 4096 | base64 -w0   → .env
+#   docker compose up -d
+#   docker exec -i attic atticadm make-token --sub admin --validity "10 years" \
+#     --pull "*" --push "*" --create-cache "*" --configure-cache "*" \
+#     --configure-cache-retention "*" --delete "*" --destroy-cache "*"
+#   attic login infra http://<infra-host>:8080 <token>
+#
+# The config file must exist first: if it is missing Docker creates an empty
+# directory at the mount point and atticd dies reading it.
+services:
+  attic:
+    # Digest-pinned: ghcr has no version tags and "latest" is not current main.
+    # atticd rejects unknown config keys and migrations are forward-only, so a
+    # moving tag can crash-loop with no way back. Upgrade = review the upstream
+    # diff, then swap the digest from `docker buildx imagetools inspect`.
+    image: ghcr.io/zhaofengli/attic:latest@sha256:18574aba70fc89d2b695273fbe2e7b2f8ad7e8e786b4cc535124fbe14bada1d0
+    container_name: attic
+    restart: unless-stopped
+    # No watchtower label - the digest above moves this image, by hand.
+    #
+    # No "-f" and no command: the entrypoint is /bin/atticd, so command: would be
+    # its args. atticd/atticadm fall back to $XDG_CONFIG_HOME/attic/server.toml,
+    # which XDG_CONFIG_HOME=/etc points at the mount below - so the one-off modes
+    # need no flag: `docker exec attic atticd --mode garbage-collector-once`.
+    ports:
+      # Overridable: this repository cannot see what else listens on the host.
+      - ${ATTIC_HTTP_PORT:-8080}:8080
+    environment:
+      # Keeps the default config path equal to the mount below.
+      - XDG_CONFIG_HOME=/etc
+      # attic.toml deliberately omits database.url.
+      - ATTIC_SERVER_DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DATABASE}
+      # Base64 PKCS#1 RSA key (.env.example). No alias, so the name has one
+      # source; rotating it invalidates every token already minted.
+      - ATTIC_SERVER_TOKEN_RS256_SECRET_BASE64=${ATTIC_SERVER_TOKEN_RS256_SECRET_BASE64}
+      # Symmetric alternative - uncomment and drop the RS256 line.
+      # - ATTIC_SERVER_TOKEN_HS256_SECRET_BASE64=${ATTIC_SERVER_TOKEN_HS256_SECRET_BASE64}
+    volumes:
+      # Absolute paths behave the same for Git stacks, the web editor and a local
+      # `docker compose up`. Bind mounts follow the inode: after editing the host
+      # file, recreate with `docker compose up -d --force-recreate`.
+      - /srv/docker/appdata/attic/attic.toml:/etc/attic/server.toml
+      # Off the appdata tree - a cache grows on its own schedule. The path must
+      # stay stable: storage.path in the config is what objects are recorded
+      # against.
+      - /mnt/nix-cache/objects:/var/lib/attic/storage
+    networks:
+      - portainer_default
+networks:
+  portainer_default:
+    external: true
