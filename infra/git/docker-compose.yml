@@ -1,0 +1,74 @@
+# Gitea + Actions runner, on the infra host (192.168.16.249).
+#
+#   phase 1  docker exec -it postgres psql -U app -c 'CREATE DATABASE gitea;'
+#            docker compose up -d
+#            docker exec -u git gitea gitea admin user create --admin \
+#              --username admin --email <mail> --password '<pw>'
+#   phase 2  token from https://git.yooke.top/admin/actions/runners, into .env
+#            docker compose up -d      # recreates gitea-runner only
+#
+# Neither image is watchtower-labelled: Gitea runs forward-only migrations and a
+# runner bump can change job isolation, so both are pinned and bumped by hand.
+services:
+  gitea:
+    image: docker.gitea.com/gitea:28.4.0
+    container_name: gitea
+    restart: always
+    ports:
+      - "${GITEA_HTTP_PORT}:3000"
+      # Keep equal to GITEA__server__SSH_PORT below, or clone URLs lie.
+      - "${GITEA_SSH_PORT}:22"
+    environment:
+      - TZ=Asia/Shanghai
+      # Must match the owner of /srv/docker/appdata/gitea.
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__server__DOMAIN=${GITEA_HOST}
+      - GITEA__server__SSH_DOMAIN=${GITEA_HOST}
+      - GITEA__server__ROOT_URL=${GITEA_ROOT_URL}
+      # Ports bound inside the container. HTTP stays 3000 behind the 3003
+      # mapping, and sshd must stay on 22 to match 2222:22 - SSH_PORT is only
+      # the port announced in clone URLs.
+      - GITEA__server__HTTP_PORT=3000
+      - GITEA__server__SSH_LISTEN_PORT=22
+      - GITEA__server__SSH_PORT=${GITEA_SSH_PORT}
+      # Upstream defaults this to false.
+      - GITEA__server__LFS_START_SERVER=true
+      - GITEA__database__DB_TYPE=postgres
+      - GITEA__database__HOST=${POSTGRES_HOST}:${POSTGRES_PORT}
+      - GITEA__database__NAME=${POSTGRES_DATABASE}
+      - GITEA__database__USER=${POSTGRES_USER}
+      - GITEA__database__PASSWD=${POSTGRES_PASSWORD}
+      - GITEA__security__INSTALL_LOCK=true
+      - GITEA__service__DISABLE_REGISTRATION=true
+      - GITEA__service__REQUIRE_SIGNIN_VIEW=${GITEA_REQUIRE_SIGNIN_VIEW}
+    volumes:
+      - /srv/docker/appdata/gitea:/data
+    networks:
+      - portainer_default
+
+  gitea-runner:
+    image: gitea/runner:6.0.1-dind
+    container_name: gitea-runner
+    restart: always
+    # Needed by the bundled dockerd, which keeps jobs off the host's socket.
+    privileged: true
+    depends_on:
+      - gitea
+    environment:
+      - TZ=Asia/Shanghai
+      # Not http://gitea:3000: jobs run inside the bundled daemon, where
+      # portainer_default names do not resolve.
+      - GITEA_INSTANCE_URL=${GITEA_ROOT_URL}
+      - GITEA_RUNNER_NAME=${GITEA_RUNNER_NAME}
+      - GITEA_RUNNER_REGISTRATION_TOKEN=${GITEA_RUNNER_REGISTRATION_TOKEN}
+      - CONFIG_FILE=/data/config.yaml
+    volumes:
+      - /srv/docker/appdata/gitea-runner/data:/data
+      # Job image cache of the bundled daemon:
+      #   docker exec gitea-runner docker system prune -af
+      - /srv/docker/appdata/gitea-runner/docker:/var/lib/docker
+
+networks:
+  portainer_default:
+    external: true

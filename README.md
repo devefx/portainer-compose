@@ -10,6 +10,7 @@ infra/
 ├── cache/          # attic (Nix binary cache)
 ├── dashboard/      # sun-panel, flatnas
 ├── data/           # mariadb, postgres, redis, meilisearch
+├── git/            # gitea + actions runner
 ├── maintenance/    # watchtower (auto image updates)
 ├── metrics/        # grafana, influxdb2, prometheus
 ├── notes/          # joplin, trilium
@@ -86,6 +87,11 @@ keeps a floating tag. Several services are still pinned and are deliberately **n
 labelled, because their tag never moves:
 `admin/guacd:1.6.0`, `dashboard/sun-panel:1.3.0`, `custom/vidlens-server:1.0.1`,
 `custom/telegram-assistant:1.0.0`, `games/emulatorjs:amd64-1.9.2`.
+
+`infra/git` carries two pins for a reason other than "the tag never moves": `gitea:28.4.0`,
+because every minor release runs forward-only database migrations, and `runner:6.0.1-dind`,
+because an upgrade can change how jobs are isolated - a bad rollout breaks CI quietly
+instead of failing loudly. Both are bumped by hand and neither is labelled.
 
 `infra/cache/attic` is the opposite case: upstream publishes no version tags on ghcr, its
 TOML schema changes incompatibly between builds (`atticd` aborts on unknown keys) and its

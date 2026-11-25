@@ -1,0 +1,32 @@
+# Copy to /srv/docker/appdata/gitea-runner/data/config.yaml before the first
+# `docker compose up -d`. The file is read from CONFIG_FILE=/data/config.yaml.
+# `docker exec gitea-runner gitea-runner config generate` prints the complete
+# reference with every option and its default.
+runner:
+  # One job at a time. Every concurrent docker job takes a subnet from the
+  # bundled daemon's address pool, so raise this deliberately.
+  capacity: 1
+  # A job's `runs-on` is matched against these names; the image after docker://
+  # is what the job runs in. runner-images is Gitea's own Ubuntu-like set:
+  # https://gitea.com/gitea/runner-images
+  labels:
+    - "ubuntu-latest:docker://docker.gitea.com/runner-images:ubuntu-latest"
+    - "ubuntu-24.04:docker://docker.gitea.com/runner-images:ubuntu-24.04"
+cache:
+  # actions/cache blobs. The built-in default ($HOME/.cache/actcache) sits in
+  # the container's writable layer, which is lost on every recreate.
+  dir: /data/actcache
+  # Drop entries nothing touched for a week; cap one repository at 5GB. Both
+  # can be unset to use the 168h / 10GB defaults.
+  retention: 168h
+  repo_size_limit: 5GB
+
+# Optional hardening, off by default:
+# container:
+#   # Remove containers, networks and volumes a job creates through its docker
+#   # proxy. Do NOT enable if workflows deploy long-lived services.
+#   sweep: true
+# metrics:
+#   enabled: true
+#   # No authentication on this endpoint; keep it off the LAN unless scraped.
+#   addr: "127.0.0.1:9101"
