@@ -1,6 +1,7 @@
 # Gitea + Actions runner, on the infra host (192.168.16.249).
 #
-#   phase 1  docker exec -it postgres psql -U app -c 'CREATE DATABASE gitea;'
+#   phase 1  mkdir -p /srv/docker/appdata/gitea /srv/docker/appdata/gitea-runner/{data,cache,docker}
+#            docker exec -it postgres psql -U app -c 'CREATE DATABASE gitea;'
 #            docker compose up -d
 #            docker exec -u git gitea gitea admin user create --admin \
 #              --username admin --email <mail> --password '<pw>'
@@ -62,9 +63,11 @@ services:
       - GITEA_INSTANCE_URL=${GITEA_ROOT_URL}
       - GITEA_RUNNER_NAME=${GITEA_RUNNER_NAME}
       - GITEA_RUNNER_REGISTRATION_TOKEN=${GITEA_RUNNER_REGISTRATION_TOKEN}
-      - CONFIG_FILE=/data/config.yaml
     volumes:
       - /srv/docker/appdata/gitea-runner/data:/data
+      # cache.dir defaults to this path when there is no config file,
+      # so the actions cache survives a container recreate:
+      - /srv/docker/appdata/gitea-runner/cache:/root/.cache/actcache
       # Job image cache of the bundled daemon:
       #   docker exec gitea-runner docker system prune -af
       - /srv/docker/appdata/gitea-runner/docker:/var/lib/docker
